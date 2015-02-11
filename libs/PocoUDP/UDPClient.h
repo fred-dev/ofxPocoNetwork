@@ -16,14 +16,14 @@
 
 namespace ofxPocoNetwork {
 
-class UDPClient {
+class UDPClient : public ofThread  {
 public:
     
     UDPClient();
     virtual ~UDPClient();
     void disconnect();
     
-    void connect(string ipAddr, int port);
+    void connect(string ipAddr, int port,int sourcePort);
     bool connected;
     
     // send (blocking)
@@ -35,12 +35,31 @@ public:
     int getMaxSendSize();
     int getDatagramSourcePort();
     
+    void threadedFunction();
+    
+    // receive
+    bool hasWaitingMessages();
+    int parseMessage();
+    void setReceiveSize(int size);
+    
+    // send
+    bool getNextMessage(ofBuffer& message);
+    bool getNextMessage(string& msg);
+    
+    bool getNextMessage(uint8_t msg[]);
+    
 protected:
+    int sleepTime;
+    int receiveSize;
+    
+    bool waitingRequest; // temp var applied to any connection
 
     Poco::Net::SocketAddress* socketAddress;
+    Poco::Net::SocketAddress* socketAddressSource;
     Poco::Net::DatagramSocket* socket;
     
     int maxBufferSendSize;
+    queue<ofBuffer> receiveBuffers;
 
 };
 

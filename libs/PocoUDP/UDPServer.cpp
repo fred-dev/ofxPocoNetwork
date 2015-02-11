@@ -33,6 +33,7 @@ void UDPServer::bind(int port){
     socketAddress = new Poco::Net::SocketAddress(Poco::Net::IPAddress(), port);
     //socket = new Poco::Net::DatagramSocket(Poco::Net::IPAddress::IPv4); // not binded
     socket = new Poco::Net::DatagramSocket(*socketAddress); // automatically binds to socket
+    //socket->setReuseAddress(true);
     
     connected = true;
     ofLog() << "Max receive size: " << socket->getReceiveBufferSize();

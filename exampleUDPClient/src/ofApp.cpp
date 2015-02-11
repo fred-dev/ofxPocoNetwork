@@ -44,6 +44,7 @@ void ofApp::keyPressed(int key){
         ofLog() << "Sent bytes: " << sentBytes;
         sentMessages.push_back(message);
     }
+    cout<<ofToString(client.getDatagramSourcePort())<<endl;
     
 }
 

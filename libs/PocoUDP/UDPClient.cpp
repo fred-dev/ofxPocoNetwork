@@ -3,8 +3,11 @@
 
 namespace ofxPocoNetwork {
     
-UDPClient::UDPClient() {    
+UDPClient::UDPClient() {
+    receiveSize = 256;
+    sleepTime = 16;
     connected = false;
+    waitingRequest = false;
 }
 
 UDPClient::~UDPClient() {
@@ -18,15 +21,20 @@ void UDPClient::disconnect() {
     if(socket) delete socket;
 }
 
-void UDPClient::connect(string ipAddr, int port) {
+void UDPClient::connect(string ipAddr, int port,int sourcePort) {
 
     // setup tcp poco client
+    socketAddressSource = new Poco::Net::SocketAddress(ipAddr, sourcePort);
     socketAddress = new Poco::Net::SocketAddress(ipAddr, port);
-    socket = new Poco::Net::DatagramSocket(Poco::Net::IPAddress::IPv4);
+    socket = new Poco::Net::DatagramSocket(*socketAddressSource);
+    socket->setReuseAddress(true);
+    
+    
     
     try {
         
         // client must connect to server
+        socket->bind(*socketAddressSource);
         socket->connect(*socketAddress);
         connected = true;
         ofLog() << "UDPClient connected";
@@ -36,7 +44,7 @@ void UDPClient::connect(string ipAddr, int port) {
         
     } catch (Poco::Exception& exc) {
         
-        disconnect();        
+        disconnect();
         ofLog() << "UDPClient Error: could not create socket- " << exc.displayText();
     }
 }
@@ -76,7 +84,93 @@ int UDPClient::sendMessage(ofBuffer& buffer) {
     }
     return 0;
 }
-
+    void UDPClient::threadedFunction(){
+        
+        while( isThreadRunning() ){
+            
+            if(connected) {
+                
+                // currently only setup for receiving
+                // receive message - blocks thread until message
+                try {
+                    
+                    // receive
+                    ofBuffer buffer;
+                    buffer.allocate(receiveSize);
+                    Poco::Net::SocketAddress sender; // use this to identify the client
+                    int n = socket->receiveFrom(buffer.getData(), buffer.size(), sender);
+                    
+                    // who sent message (sender)
+                    //ofLog() << "Received message from: " << sender.toString() << ", size: " << n;
+                    //ofLog() << "Message: " << buffer.getData();
+                    
+                    
+                    // copy/replace buffer / or push into queue
+                    mutex.lock();
+                    receiveBuffers.push(buffer);
+                    mutex.unlock();
+                    
+                    // test: send a message back to sender- works
+                    //int sent = socket->sendTo("hello", 5, sender);
+                    //ofLog() << "Sent back: " << sent;
+                    
+                } catch (Poco::Exception &e) {
+                    ofLogError() << "* UDPServer read fail 1";
+                    //disconnect();
+                } catch(std::exception& exc) {
+                    ofLogError() << "* UDPServer read fail 2";
+                    //disconnect();
+                } catch (...) {
+                    ofLogError() << "* UDPServer read fail 3";
+                    //disconnect();
+                }
+            }
+            
+            sleep(sleepTime);
+        }
+        
+    }
+    
+    void UDPClient::setReceiveSize(int size) {
+        Poco::ScopedLock<ofMutex> lock(mutex);
+        receiveSize = size;
+    }
+    int UDPClient::parseMessage() {
+        Poco::ScopedLock<ofMutex> lock(mutex);
+        return receiveBuffers.size();
+    }
+    bool UDPClient::hasWaitingMessages() {
+        Poco::ScopedLock<ofMutex> lock(mutex);
+        return receiveBuffers.size() > 0;
+    }
+    
+    bool UDPClient::getNextMessage(ofBuffer& message) {
+        Poco::ScopedLock<ofMutex> lock(mutex);
+        if(receiveBuffers.size()) {
+            message = receiveBuffers.front();
+            receiveBuffers.pop();
+            return true;
+        }
+        return false;
+    }
+    bool UDPClient::getNextMessage(uint8_t msg[]) {
+        Poco::ScopedLock<ofMutex> lock(mutex);
+        if(receiveBuffers.size()) {
+            msg = (uint8_t*)receiveBuffers.front().getData();
+            receiveBuffers.pop();
+            return true;
+        }
+        return false;
+    }
+    bool UDPClient::getNextMessage(string& msg) {
+        Poco::ScopedLock<ofMutex> lock(mutex);
+        if(receiveBuffers.size()) {
+            msg = receiveBuffers.front().getData();
+            receiveBuffers.pop();
+            return true;
+        }
+        return false;
+    }
 // advanced- internal poco buffer sizes
 //--------------------------------------------------------------
 void UDPClient::setMaxSendSize(int size) {
