@@ -31,12 +31,15 @@ public:
 
     // receive
     bool hasWaitingMessages();
+    int parseMessage();
     void setReceiveSize(int size);
 
     // send
     bool getNextMessage(ofBuffer& message);
     bool getNextMessage(string& msg);
     
+    bool getNextMessage(uint8_t msg[]);
+    int getDatagramSourcePort();
 protected:
     
     int sleepTime;

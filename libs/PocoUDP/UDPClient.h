@@ -33,6 +33,7 @@ public:
     // advanced- internal poco buffer sizes (best not to change this unless you need video or something)
     void setMaxSendSize(int size); // change pocos max send size- default 9216
     int getMaxSendSize();
+    int getDatagramSourcePort();
     
 protected:
 

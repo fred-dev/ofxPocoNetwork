@@ -41,7 +41,10 @@ void UDPClient::connect(string ipAddr, int port) {
     }
 }
 
-
+int UDPClient::getDatagramSourcePort(){
+        return socket->impl()->address().port();
+        
+    }
 
 // send
 //--------------------------------------------------------------

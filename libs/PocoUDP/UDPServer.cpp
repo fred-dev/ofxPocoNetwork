@@ -14,7 +14,10 @@ UDPServer::~UDPServer() {
 
     disconnect();
 }
-
+int UDPServer::getDatagramSourcePort(){
+    return socket->impl()->address().port();
+        
+}
 void UDPServer::disconnect() {
     waitForThread();
     connected = false;
@@ -104,7 +107,10 @@ void UDPServer::setReceiveSize(int size) {
     Poco::ScopedLock<ofMutex> lock(mutex);
     receiveSize = size;
 }
-
+int UDPServer::parseMessage() {
+        Poco::ScopedLock<ofMutex> lock(mutex);
+        return receiveBuffers.size();
+}
 bool UDPServer::hasWaitingMessages() {
     Poco::ScopedLock<ofMutex> lock(mutex);
     return receiveBuffers.size() > 0;
@@ -119,7 +125,15 @@ bool UDPServer::getNextMessage(ofBuffer& message) {
     }
     return false;
 }
-
+bool UDPServer::getNextMessage(uint8_t msg[]) {
+        Poco::ScopedLock<ofMutex> lock(mutex);
+        if(receiveBuffers.size()) {
+            msg = (uint8_t*)receiveBuffers.front().getData();
+            receiveBuffers.pop();
+            return true;
+        }
+        return false;
+}
 bool UDPServer::getNextMessage(string& msg) {
     Poco::ScopedLock<ofMutex> lock(mutex);
     if(receiveBuffers.size()) {
