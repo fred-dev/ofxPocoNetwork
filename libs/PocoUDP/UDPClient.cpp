@@ -22,37 +22,38 @@ void UDPClient::disconnect() {
 }
 
 void UDPClient::connect(string ipAddr, int port,int sourcePort) {
-
-    // setup tcp poco client
-    socketAddressSource = new Poco::Net::SocketAddress(ipAddr, sourcePort);
+    if(connected) disconnect();
+    
+  
+    // setup udp poco server (localhost)
+    socketAddressSource = new Poco::Net::SocketAddress(Poco::Net::IPAddress(), sourcePort);
     socketAddress = new Poco::Net::SocketAddress(ipAddr, port);
-    socket = new Poco::Net::DatagramSocket(*socketAddressSource);
-    socket->setReuseAddress(true);
+    //socket = new Poco::Net::DatagramSocket(Poco::Net::IPAddress::IPv4); // not binded
+    socket = new Poco::Net::DatagramSocket(*socketAddressSource, true); // automatically binds to socket
+    
+    connected = true;
+    ofLog() << "Bind to: " << socketAddress->toString();
+    ofLog() << "Socket: " << socket->address().toString();
+    ofLog() << "Max receive size: " << socket->getReceiveBufferSize();
+    ofLog() << "Max send size: " << socket->getSendBufferSize();
     
     
+    // a server must be bound- and can only send to a defined socket address
+    //socket->connect(*socketAddress);
+   // socket->bind(*socketAddressSource, true);
+    //socket->sendBytes("hello", 5);
+    //socket->sendTo("hello", 5, *socketAddress);
     
-    try {
-        
-        // client must connect to server
-        socket->bind(*socketAddressSource);
-        socket->connect(*socketAddress);
-        connected = true;
-        ofLog() << "UDPClient connected";
-        ofLog() << "Max receive size: " << socket->getReceiveBufferSize();
-        ofLog() << "Max send size: " << socket->getSendBufferSize(); // 9216
-        
-        
-    } catch (Poco::Exception& exc) {
-        
-        disconnect();
-        ofLog() << "UDPClient Error: could not create socket- " << exc.displayText();
-    }
+    
+    if(!isThreadRunning()) startThread();
 }
 
 int UDPClient::getDatagramSourcePort(){
-        return socket->impl()->address().port();
+       //\ return socket->impl()->address().port();
         
     }
+    
+
 
 // send
 //--------------------------------------------------------------
@@ -68,7 +69,8 @@ int UDPClient::sendMessage(string msg) {
 int UDPClient::sendMessage(ofBuffer& buffer) {
     if(connected) {
         try {
-            int sent = socket->sendBytes(buffer.getData(), buffer.size());
+            int sent = socket->sendTo(buffer.getBinaryBuffer(), buffer.size(), *socketAddress);
+            //int sent = socket->sendBytes(buffer.getBinaryBuffer(), buffer.size());
             //int sent = socket->sendTo(buffer, sendSize, *socketAddress);
             return sent;
         } catch (Poco::Exception &e) {
@@ -98,7 +100,7 @@ int UDPClient::sendMessage(ofBuffer& buffer) {
                     ofBuffer buffer;
                     buffer.allocate(receiveSize);
                     Poco::Net::SocketAddress sender; // use this to identify the client
-                    int n = socket->receiveFrom(buffer.getData(), buffer.size(), sender);
+                    int n = socket->receiveFrom(buffer.getBinaryBuffer(), buffer.size(), sender);
                     
                     // who sent message (sender)
                     //ofLog() << "Received message from: " << sender.toString() << ", size: " << n;
@@ -156,7 +158,7 @@ int UDPClient::sendMessage(ofBuffer& buffer) {
     bool UDPClient::getNextMessage(uint8_t msg[]) {
         Poco::ScopedLock<ofMutex> lock(mutex);
         if(receiveBuffers.size()) {
-            msg = (uint8_t*)receiveBuffers.front().getData();
+            msg = (uint8_t*)receiveBuffers.front().getBinaryBuffer();
             receiveBuffers.pop();
             return true;
         }
@@ -165,7 +167,7 @@ int UDPClient::sendMessage(ofBuffer& buffer) {
     bool UDPClient::getNextMessage(string& msg) {
         Poco::ScopedLock<ofMutex> lock(mutex);
         if(receiveBuffers.size()) {
-            msg = receiveBuffers.front().getData();
+            msg = receiveBuffers.front().getBinaryBuffer();
             receiveBuffers.pop();
             return true;
         }

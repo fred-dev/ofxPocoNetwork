@@ -23,4 +23,7 @@ class ofApp : public ofBaseApp{
 
     ofxPocoNetwork::UDPClient client;
     vector<string> sentMessages;
+    
+    string inComing;
+    string outGoing;
 };

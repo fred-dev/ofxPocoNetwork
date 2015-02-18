@@ -16,6 +16,7 @@
 		6474CBF819BCE019003C94E2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6474CBF219BCE00B003C94E2 /* QuartzCore.framework */; };
 		7891E4B0BF0CA36ACC3029CF /* ReactorClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F118C40A0B61C02AAD835480 /* ReactorClient.cpp */; };
 		89FF7C22E47ADC60032AE6C6 /* UDPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FC9ED3F26E5565046734E987 /* UDPServer.cpp */; };
+		B6D9C35C1A94E945009A8ED7 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6D9C35B1A94E945009A8ED7 /* Cocoa.framework */; };
 		B841A131A3C2DBE63BD949B0 /* ReactorConnectionHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 02C89B6381E24855D591AEDD /* ReactorConnectionHandler.cpp */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		CCFEA57C6591CBE3FB6647EE /* TCPClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CA2E52A2CBE566A0C5185C94 /* TCPClient.cpp */; };
@@ -86,6 +87,7 @@
 		94E54A6ED23722ED878100CF /* UDPClient.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = UDPClient.cpp; path = ../libs/PocoUDP/UDPClient.cpp; sourceTree = SOURCE_ROOT; };
 		A9407FAEB32D9BF74E0973C3 /* ReactorServer.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ReactorServer.cpp; path = ../libs/PocoTCP/ReactorServer.cpp; sourceTree = SOURCE_ROOT; };
 		B6C29CB75CFDC58611D17F64 /* UDPClient.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = UDPClient.h; path = ../libs/PocoUDP/UDPClient.h; sourceTree = SOURCE_ROOT; };
+		B6D9C35B1A94E945009A8ED7 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		BBAB23BE13894E4700AA2426 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = ../../../libs/glut/lib/osx/GLUT.framework; sourceTree = "<group>"; };
 		C4CD9418B1DB11EB4B9E2CC4 /* ReactorServer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ReactorServer.h; path = ../libs/PocoTCP/ReactorServer.h; sourceTree = SOURCE_ROOT; };
 		CA2E52A2CBE566A0C5185C94 /* TCPClient.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = TCPClient.cpp; path = ../libs/PocoTCP/TCPClient.cpp; sourceTree = SOURCE_ROOT; };
@@ -123,6 +125,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6D9C35C1A94E945009A8ED7 /* Cocoa.framework in Frameworks */,
 				6474CBF619BCE019003C94E2 /* AVFoundation.framework in Frameworks */,
 				6474CBF719BCE019003C94E2 /* CoreMedia.framework in Frameworks */,
 				6474CBF819BCE019003C94E2 /* QuartzCore.framework in Frameworks */,
@@ -258,6 +261,7 @@
 		E4B69B4A0A3A1720003C02F2 = {
 			isa = PBXGroup;
 			children = (
+				B6D9C35B1A94E945009A8ED7 /* Cocoa.framework */,
 				E4B6FCAD0C3E899E008CF71C /* openFrameworks-Info.plist */,
 				E4EB6923138AFD0F00A09F29 /* Project.xcconfig */,
 				E4B69E1C0A3A1BDC003C02F2 /* src */,

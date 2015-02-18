@@ -4,7 +4,7 @@
 void ofApp::setup(){
     
     ofSetFrameRate(60);
-    server.bind(5004);
+    server.bind(9910);
 }
 
 //--------------------------------------------------------------

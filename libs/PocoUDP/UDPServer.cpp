@@ -68,7 +68,7 @@ void UDPServer::threadedFunction(){
                 ofBuffer buffer;
                 buffer.allocate(receiveSize);
                 Poco::Net::SocketAddress sender; // use this to identify the client
-                int n = socket->receiveFrom(buffer.getData(), buffer.size(), sender);
+                int n = socket->receiveFrom(buffer.getBinaryBuffer(), buffer.size(), sender);
                 
                 // who sent message (sender)
                 //ofLog() << "Received message from: " << sender.toString() << ", size: " << n;
@@ -129,7 +129,7 @@ bool UDPServer::getNextMessage(ofBuffer& message) {
 bool UDPServer::getNextMessage(uint8_t msg[]) {
         Poco::ScopedLock<ofMutex> lock(mutex);
         if(receiveBuffers.size()) {
-            msg = (uint8_t*)receiveBuffers.front().getData();
+            msg = (uint8_t*)receiveBuffers.front().getBinaryBuffer();
             receiveBuffers.pop();
             return true;
         }
@@ -138,7 +138,7 @@ bool UDPServer::getNextMessage(uint8_t msg[]) {
 bool UDPServer::getNextMessage(string& msg) {
     Poco::ScopedLock<ofMutex> lock(mutex);
     if(receiveBuffers.size()) {
-        msg = receiveBuffers.front().getData();
+        msg = receiveBuffers.front().getBinaryBuffer();
         receiveBuffers.pop();
         return true;
     }

@@ -5,7 +5,8 @@
 void ofApp::setup(){
     
     ofSetFrameRate(60);
-    client.connect("localhost",5004);
+    client.connect("192.168.0.240",9910,5320);
+  
 }
 
 //--------------------------------------------------------------
@@ -16,36 +17,35 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-    ofSetColor(255);
-    
-    // display sent messages
-    stringstream sendOutput;
-    sendOutput << "SENT MESSAGES..." << endl;
-    for(int i = sentMessages.size()-1; i >= 0; i--) {
-        sendOutput << sentMessages[i] << endl;
-    }
-    ofSetColor(0);
-    ofDrawBitmapString(sendOutput.str(), 20, 80);
-    
-    // info
-    stringstream output;
-    output << "UDPClient." << endl;
-    output << "Press a key to send a message" << endl;
-    ofDrawBitmapStringHighlight(output.str(), 20, 20);
+    if (client.hasWaitingMessages()) {
+        inComing ="";
+        uint8_t incomingSize = client.parseMessage();
+        cout<<"Message is " + ofToString(incomingSize) + " long"<<endl;
+        
+         uint8_t incomingMessage[96];
+        ofBuffer tempBuffer;
+        client.getNextMessage(incomingMessage);
+        for (int i = 0; i < 96; i++) printf("%x", incomingMessage[i]);
+        
+        
+        for (int i =0; i<incomingSize; i++) {
+            inComing+=incomingMessage[i];
+        }
+        cout<<inComing<<endl;
+            }
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
-    // send message
-    string message = "Hello from client pressed:" + ofToString(key);
-    int sentBytes = client.sendMessage(message);    
-    if(sentBytes) {
-        ofLog() << "Sent bytes: " << sentBytes;
-        sentMessages.push_back(message);
+    if (key == ' ') {
+        const char connectHello[] = {
+            0x10, 0x14, 0x53, 0xAB, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3A, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+        ofBuffer buffer;
+        buffer.append(connectHello, 20);
+       
+        client.sendMessage(buffer);
     }
-    cout<<ofToString(client.getDatagramSourcePort())<<endl;
-    
 }
 
 //--------------------------------------------------------------
